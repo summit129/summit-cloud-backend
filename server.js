@@ -14,7 +14,41 @@ let lastPriceFetch = 0;
 const PRICE_CACHE_TTL = 60000;
 
 // ============================================================
-// COMMODITY MAPS
+// TRADINGVIEW LOGO MAP - stocks & commodities
+// ============================================================
+const tvLogoMap = {
+  // Stocks
+  'AAPL':  'apple', 'MSFT': 'microsoft', 'GOOGL': 'alphabet', 'GOOG': 'alphabet',
+  'AMZN':  'amazon', 'NVDA': 'nvidia', 'TSLA': 'tesla', 'META': 'meta-platforms',
+  'NFLX':  'netflix', 'AMD': 'advanced-micro-devices', 'INTC': 'intel',
+  'QCOM':  'qualcomm', 'AVGO': 'broadcom', 'ENPH': 'enphase-energy',
+  'FSLR':  'first-solar', 'COIN': 'coinbase', 'MSTR': 'microstrategy',
+  'RIOT':  'riot-platforms', 'MARA': 'marathon-digital',
+  'SPY':   'spdr-sp-500-etf-trust', 'QQQ': 'invesco-qqq-trust',
+  'PYPL':  'paypal', 'SHOP': 'shopify', 'UBER': 'uber',
+  'PLTR':  'palantir-technologies', 'SNOW': 'snowflake', 'CRM': 'salesforce',
+  'ORCL':  'oracle', 'IBM': 'ibm', 'CSCO': 'cisco',
+  'DIS':   'walt-disney', 'BA': 'boeing', 'JPM': 'jpmorgan-chase',
+  'BAC':   'bank-of-america', 'GS': 'goldman-sachs', 'V': 'visa', 'MA': 'mastercard',
+  'ABNB':  'airbnb', 'SQ': 'block', 'BABA': 'alibaba', 'NIO': 'nio',
+  // Commodities
+  'XAUUSD': 'gold', 'GOLD': 'gold',
+  'XAGUSD': 'silver', 'SILVER': 'silver',
+  'USOIL':  'crude-oil', 'WTI': 'crude-oil', 'UKOIL': 'crude-oil', 'BRENT': 'crude-oil',
+  'NATGAS': 'natural-gas', 'COPPER': 'copper',
+  'PLATINUM': 'platinum', 'PALLADIUM': 'palladium',
+  'WHEAT':  'wheat', 'CORN': 'corn', 'COFFEE': 'coffee',
+};
+
+function getAssetLogo(ticker, category) {
+  if (category === 'crypto') return null; // handled by CMC
+  const slug = tvLogoMap[ticker.toUpperCase()];
+  if (slug) return `https://s3-symbol-logo.tradingview.com/${slug}--big.svg`;
+  return null;
+}
+
+// ============================================================
+// COMMODITY YAHOO MAP
 // ============================================================
 const commodityYahooMap = {
   'XAUUSD': 'GC=F', 'GOLD': 'GC=F',
@@ -25,30 +59,6 @@ const commodityYahooMap = {
   'WHEAT': 'ZW=F', 'CORN': 'ZC=F', 'SOYBEAN': 'ZS=F',
   'COFFEE': 'KC=F', 'SUGAR': 'SB=F', 'COTTON': 'CT=F'
 };
-
-// Using Wikipedia/Wikimedia commons SVGs - reliable, free, no API key
-const commodityLogos = {
-  'XAUUSD': 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Gold-crystals.jpg/240px-Gold-crystals.jpg',
-  'GOLD':   'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Gold-crystals.jpg/240px-Gold-crystals.jpg',
-  'XAGUSD': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Silver_crystal.jpg/240px-Silver_crystal.jpg',
-  'SILVER': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Silver_crystal.jpg/240px-Silver_crystal.jpg',
-  'USOIL':  'https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Oil_well.jpg/240px-Oil_well.jpg',
-  'WTI':    'https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Oil_well.jpg/240px-Oil_well.jpg',
-  'UKOIL':  'https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Oil_well.jpg/240px-Oil_well.jpg',
-  'BRENT':  'https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Oil_well.jpg/240px-Oil_well.jpg',
-  'NATGAS': 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Natural_gas_flame.jpg/240px-Natural_gas_flame.jpg',
-  'COPPER': 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/NatCopper.jpg/240px-NatCopper.jpg',
-  'PLATINUM': 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Platinum_crystals.jpg/240px-Platinum_crystals.jpg',
-  'WHEAT':  'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Camponotus_flavomarginatus_ant.jpg/240px-Camponotus_flavomarginatus_ant.jpg',
-  'CORN':   'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Camponotus_flavomarginatus_ant.jpg/240px-Camponotus_flavomarginatus_ant.jpg',
-};
-
-// ============================================================
-// STOCK LOGO - Financial Modeling Prep (free, no key needed)
-// ============================================================
-function getStockLogo(ticker) {
-  return `https://financialmodelingprep.com/image-stock/${ticker.toUpperCase()}.png`;
-}
 
 // ============================================================
 // YAHOO FINANCE PRICE
@@ -64,7 +74,6 @@ function fetchYahooPrice(yahooSymbol) {
         'Accept': 'application/json'
       }
     };
-
     const req = https.request(options, (res) => {
       let data = '';
       res.on('data', chunk => data += chunk);
@@ -76,7 +85,6 @@ function fetchYahooPrice(yahooSymbol) {
         } catch (e) { resolve(null); }
       });
     });
-
     req.on('error', () => resolve(null));
     req.setTimeout(5000, () => { req.destroy(); resolve(null); });
     req.end();
@@ -84,7 +92,7 @@ function fetchYahooPrice(yahooSymbol) {
 }
 
 // ============================================================
-// CMC CRYPTO PRICES
+// CMC CRYPTO PRICES + LOGOS
 // ============================================================
 function fetchCMCPrices(symbols) {
   return new Promise((resolve) => {
@@ -94,7 +102,6 @@ function fetchCMCPrices(symbols) {
       method: 'GET',
       headers: { 'X-CMC_PRO_API_KEY': CMC_API_KEY }
     };
-
     const req = https.request(options, (res) => {
       let data = '';
       res.on('data', chunk => data += chunk);
@@ -114,7 +121,6 @@ function fetchCMCPrices(symbols) {
         } catch (e) { resolve({}); }
       });
     });
-
     req.on('error', () => resolve({}));
     req.end();
   });
@@ -129,8 +135,8 @@ async function refreshPrices() {
 
   const flips = Object.values(cloudFlips);
   const cryptoAssets = [...new Set(flips.filter(f => f.category === 'crypto').map(f => f.asset))];
-  const stockAssets = [...new Set(flips.filter(f => f.category === 'stock').map(f => f.asset))];
-  const commodityAssets = [...new Set(flips.filter(f => f.category === 'commodity').map(f => f.asset))];
+  const stockAssets  = [...new Set(flips.filter(f => f.category === 'stock').map(f => f.asset))];
+  const commAssets   = [...new Set(flips.filter(f => f.category === 'commodity').map(f => f.asset))];
 
   if (cryptoAssets.length > 0) {
     const prices = await fetchCMCPrices(cryptoAssets);
@@ -139,13 +145,13 @@ async function refreshPrices() {
 
   for (const asset of stockAssets) {
     const price = await fetchYahooPrice(asset);
-    priceCache[asset] = { price, logo: getStockLogo(asset) };
+    priceCache[asset] = { price, logo: getAssetLogo(asset, 'stock') };
   }
 
-  for (const asset of commodityAssets) {
+  for (const asset of commAssets) {
     const yahooSym = commodityYahooMap[asset] || asset;
     const price = await fetchYahooPrice(yahooSym);
-    priceCache[asset] = { price, logo: commodityLogos[asset] || null };
+    priceCache[asset] = { price, logo: getAssetLogo(asset, 'commodity') };
   }
 
   lastPriceFetch = now;
@@ -161,7 +167,6 @@ app.post('/api/webhook', async (req, res) => {
     if (!asset || !timeframe || !signal) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
-
     const key = `${asset.toUpperCase()}_${timeframe.toUpperCase()}`;
     cloudFlips[key] = {
       asset: asset.toUpperCase(),
@@ -170,7 +175,6 @@ app.post('/api/webhook', async (req, res) => {
       category: category || detectCategory(asset),
       timestamp: new Date().toISOString(),
     };
-
     lastPriceFetch = 0;
     console.log(`Flip: ${asset} ${timeframe} -> ${signal}`);
     res.json({ success: true, data: cloudFlips[key] });
@@ -184,13 +188,11 @@ app.post('/api/webhook', async (req, res) => {
 // ============================================================
 app.get('/api/cloud-flips', async (req, res) => {
   await refreshPrices();
-
   const flips = Object.values(cloudFlips).map(flip => ({
     ...flip,
     price: priceCache[flip.asset]?.price || null,
     logo: priceCache[flip.asset]?.logo || null,
   }));
-
   res.json({ success: true, count: flips.length, data: flips });
 });
 
