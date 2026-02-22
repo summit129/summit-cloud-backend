@@ -1,16 +1,87 @@
 const express = require('express');
 const cors = require('cors');
+const https = require('https');
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-// In-memory storage for cloud flips
-// Structure: { "BTC_1D": { asset, timeframe, signal, category, timestamp } }
-let cloudFlips = {};
+const CMC_API_KEY = '44bfdd5317224b0b8ff8cafbcd3d1267';
 
-// Webhook endpoint - receives TradingView alerts
-app.post('/api/webhook', (req, res) => {
+// In-memory storage
+let cloudFlips = {};
+let priceCache = {};
+let lastPriceFetch = 0;
+const PRICE_CACHE_TTL = 60000;
+
+// ============================================================
+// FETCH PRICES SERVER-SIDE FROM COINMARKETCAP
+// ============================================================
+function fetchCMCPrices(symbols) {
+  return new Promise((resolve) => {
+    const symbolStr = symbols.join(',');
+    const options = {
+      hostname: 'pro-api.coinmarketcap.com',
+      path: `/v1/cryptocurrency/quotes/latest?symbol=${symbolStr}&convert=USD`,
+      method: 'GET',
+      headers: { 'X-CMC_PRO_API_KEY': CMC_API_KEY }
+    };
+
+    const req = https.request(options, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        try {
+          const json = JSON.parse(data);
+          const result = {};
+          if (json.data) {
+            Object.entries(json.data).forEach(([symbol, info]) => {
+              result[symbol] = {
+                price: info.quote.USD.price,
+                logo: `https://s2.coinmarketcap.com/static/img/coins/64x64/${info.id}.png`,
+                id: info.id
+              };
+            });
+          }
+          resolve(result);
+        } catch (e) {
+          console.error('CMC parse error:', e);
+          resolve({});
+        }
+      });
+    });
+
+    req.on('error', (e) => {
+      console.error('CMC request error:', e);
+      resolve({});
+    });
+
+    req.end();
+  });
+}
+
+async function refreshPrices() {
+  const now = Date.now();
+  if (now - lastPriceFetch < PRICE_CACHE_TTL) return;
+
+  const cryptoAssets = Object.values(cloudFlips)
+    .filter(f => f.category === 'crypto')
+    .map(f => f.asset);
+
+  if (cryptoAssets.length === 0) return;
+
+  const unique = [...new Set(cryptoAssets)];
+  console.log(`Fetching prices for: ${unique.join(', ')}`);
+  const prices = await fetchCMCPrices(unique);
+  priceCache = { ...priceCache, ...prices };
+  lastPriceFetch = now;
+  console.log(`Prices updated for ${Object.keys(prices).length} assets`);
+}
+
+// ============================================================
+// WEBHOOK
+// ============================================================
+app.post('/api/webhook', async (req, res) => {
   try {
     const { asset, timeframe, signal, category } = req.body;
 
@@ -22,12 +93,13 @@ app.post('/api/webhook', (req, res) => {
     cloudFlips[key] = {
       asset: asset.toUpperCase(),
       timeframe: timeframe.toUpperCase(),
-      signal: signal.toUpperCase(), // BULL or BEAR
+      signal: signal.toUpperCase(),
       category: category || detectCategory(asset),
       timestamp: new Date().toISOString(),
     };
 
-    console.log(`✅ Flip received: ${asset} ${timeframe} → ${signal}`);
+    lastPriceFetch = 0;
+    console.log(`Flip received: ${asset} ${timeframe} -> ${signal}`);
     res.json({ success: true, data: cloudFlips[key] });
   } catch (err) {
     console.error('Webhook error:', err);
@@ -35,38 +107,44 @@ app.post('/api/webhook', (req, res) => {
   }
 });
 
-// GET all cloud flips
-app.get('/api/cloud-flips', (req, res) => {
-  const flips = Object.values(cloudFlips);
-  res.json({ success: true, count: flips.length, data: flips });
-});
+// ============================================================
+// GET all cloud flips with prices
+// ============================================================
+app.get('/api/cloud-flips', async (req, res) => {
+  await refreshPrices();
 
-// GET flips filtered by category
-app.get('/api/cloud-flips/:category', (req, res) => {
-  const { category } = req.params;
-  const flips = Object.values(cloudFlips).filter(
-    f => f.category.toLowerCase() === category.toLowerCase()
-  );
+  const flips = Object.values(cloudFlips).map(flip => ({
+    ...flip,
+    price: priceCache[flip.asset]?.price || null,
+    logo: priceCache[flip.asset]?.logo || null,
+  }));
+
   res.json({ success: true, count: flips.length, data: flips });
 });
 
 // Health check
 app.get('/', (req, res) => {
-  res.json({ status: 'Summit Cloud Scanner API is running', flips: Object.keys(cloudFlips).length });
+  res.json({
+    status: 'Summit Cloud Scanner API running',
+    flips: Object.keys(cloudFlips).length,
+    prices_cached: Object.keys(priceCache).length
+  });
 });
 
-// Auto-detect category based on known assets
+// ============================================================
+// AUTO-DETECT CATEGORY
+// ============================================================
 function detectCategory(asset) {
-  const crypto = ['BTC','ETH','SOL','XRP','BNB','ADA','DOGE','AVAX','DOT','MATIC','LINK','UNI','ATOM','LTC','BCH','XLM','ALGO','VET','ICP','FIL','HBAR','EGLD','THETA','AXS','SAND','MANA','ENJ','CHZ','GALA','CRO','FTT','NEAR','ONE','HARMONY','ZIL','HOT','BTT','WIN','TRX','EOS','XTZ','CAKE','SUSHI','AAVE','COMP','MKR','SNX','YFI','CRV','BAL','REN','KNC','ZRX','BAT','GRT','LRC','OMG','ZEC','DASH','XMR','DCR','WAVES','QTUM','ONT','ZEN','SC','DGB','RVN','XEM','STMX','DENT','MTL','OGN','NKN','ARDR','STRAT','ARK','NAV','SYS','PIVX','GRS','MONA','FUN','TNT','REP','STORJ','MITH','LOOM','POWR','BNT','MANA','ANT','MLN','NMR','TKN','PAX','TUSD','USDC','DAI','USDT','BUSD','USDP','FRAX','LUSD','MIM','USTC','SUSD','GUSD','HUSD','OUSD','USDX','CUSD','MUSD','NUSD','PUSD','RUSD','ZUSD','WBTC','RENBTC','HBTC','TBTC','SBTC','PBTC','BBTC','OBTC','MBTC','NBTC','FBTC','TAO','RENDER','RNDR','FET','OCEAN','AGI','NMR','GRT','HYPE','FLOKI','BONK'],
-    commodity = ['XAUUSD','XAGUSD','GOLD','SILVER','USOIL','UKOIL','WTI','BRENT','NATGAS','COPPER','PLATINUM','PALLADIUM','WHEAT','CORN','SOYBEAN','COFFEE','SUGAR','COTTON'],
-    stock = ['AAPL','MSFT','GOOGL','GOOG','AMZN','NVDA','TSLA','META','NFLX','AMD','INTC','QCOM','AVGO','TXN','MU','ENPH','FSLR','SEDG','RUN','SPWR','CSCO','IBM','ORCL','SAP','CRM','SNOW','PLTR','COIN','MSTR','RIOT','MARA','HUT','BTBT','CIFR','SPY','QQQ','IWM','DIA','GLD','SLV','USO','XLE','XLF','XLK','ARKK'];
+  const crypto = ['BTC','ETH','SOL','XRP','BNB','ADA','DOGE','AVAX','DOT','MATIC','LINK','UNI','ATOM','LTC','BCH','XLM','ALGO','NEAR','TAO','RENDER','RNDR','FET','OCEAN','GRT','HYPE','FLOKI','BONK','TRX','EOS','XTZ','AAVE','CRV','SNX','MKR','COMP','ICP','FIL','HBAR','VET','THETA','AXS','SAND','MANA','CHZ','GALA','CRO'];
+  const commodity = ['XAUUSD','XAGUSD','GOLD','SILVER','USOIL','UKOIL','WTI','BRENT','NATGAS','COPPER','PLATINUM','PALLADIUM','WHEAT','CORN','SOYBEAN','COFFEE','SUGAR','COTTON'];
+  const stock = ['AAPL','MSFT','GOOGL','GOOG','AMZN','NVDA','TSLA','META','NFLX','AMD','INTC','QCOM','AVGO','ENPH','FSLR','COIN','MSTR','RIOT','MARA','SPY','QQQ','GLD','SLV'];
 
   const u = asset.toUpperCase();
   if (crypto.includes(u)) return 'crypto';
   if (commodity.includes(u)) return 'commodity';
   if (stock.includes(u)) return 'stock';
-  return 'crypto'; // default
+  return 'crypto';
 }
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log(`🚀 Summit Cloud Scanner API running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Summit Cloud Scanner API running on port ${PORT}`));
