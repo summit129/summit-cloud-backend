@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const https = require('https');
-const http = require('http');
 const app = express();
 
 app.use(cors());
@@ -15,7 +14,7 @@ let lastPriceFetch = 0;
 const PRICE_CACHE_TTL = 60000;
 
 // ============================================================
-// COMMODITY SYMBOL MAP - TradingView -> Yahoo Finance
+// COMMODITY MAPS
 // ============================================================
 const commodityYahooMap = {
   'XAUUSD': 'GC=F', 'GOLD': 'GC=F',
@@ -27,21 +26,32 @@ const commodityYahooMap = {
   'COFFEE': 'KC=F', 'SUGAR': 'SB=F', 'COTTON': 'CT=F'
 };
 
+// Using Wikipedia/Wikimedia commons SVGs - reliable, free, no API key
 const commodityLogos = {
-  'XAUUSD': 'https://cdn-icons-png.flaticon.com/512/2933/2933245.png',
-  'GOLD': 'https://cdn-icons-png.flaticon.com/512/2933/2933245.png',
-  'XAGUSD': 'https://cdn-icons-png.flaticon.com/512/2933/2933246.png',
-  'SILVER': 'https://cdn-icons-png.flaticon.com/512/2933/2933246.png',
-  'USOIL': 'https://cdn-icons-png.flaticon.com/512/3437/3437364.png',
-  'WTI': 'https://cdn-icons-png.flaticon.com/512/3437/3437364.png',
-  'UKOIL': 'https://cdn-icons-png.flaticon.com/512/3437/3437364.png',
-  'BRENT': 'https://cdn-icons-png.flaticon.com/512/3437/3437364.png',
-  'NATGAS': 'https://cdn-icons-png.flaticon.com/512/3437/3437364.png',
-  'COPPER': 'https://cdn-icons-png.flaticon.com/512/2933/2933247.png',
+  'XAUUSD': 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Gold-crystals.jpg/240px-Gold-crystals.jpg',
+  'GOLD':   'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Gold-crystals.jpg/240px-Gold-crystals.jpg',
+  'XAGUSD': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Silver_crystal.jpg/240px-Silver_crystal.jpg',
+  'SILVER': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Silver_crystal.jpg/240px-Silver_crystal.jpg',
+  'USOIL':  'https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Oil_well.jpg/240px-Oil_well.jpg',
+  'WTI':    'https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Oil_well.jpg/240px-Oil_well.jpg',
+  'UKOIL':  'https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Oil_well.jpg/240px-Oil_well.jpg',
+  'BRENT':  'https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Oil_well.jpg/240px-Oil_well.jpg',
+  'NATGAS': 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Natural_gas_flame.jpg/240px-Natural_gas_flame.jpg',
+  'COPPER': 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/NatCopper.jpg/240px-NatCopper.jpg',
+  'PLATINUM': 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Platinum_crystals.jpg/240px-Platinum_crystals.jpg',
+  'WHEAT':  'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Camponotus_flavomarginatus_ant.jpg/240px-Camponotus_flavomarginatus_ant.jpg',
+  'CORN':   'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Camponotus_flavomarginatus_ant.jpg/240px-Camponotus_flavomarginatus_ant.jpg',
 };
 
 // ============================================================
-// FETCH SINGLE YAHOO FINANCE PRICE
+// STOCK LOGO - Financial Modeling Prep (free, no key needed)
+// ============================================================
+function getStockLogo(ticker) {
+  return `https://financialmodelingprep.com/image-stock/${ticker.toUpperCase()}.png`;
+}
+
+// ============================================================
+// YAHOO FINANCE PRICE
 // ============================================================
 function fetchYahooPrice(yahooSymbol) {
   return new Promise((resolve) => {
@@ -63,9 +73,7 @@ function fetchYahooPrice(yahooSymbol) {
           const json = JSON.parse(data);
           const price = json?.chart?.result?.[0]?.meta?.regularMarketPrice;
           resolve(price || null);
-        } catch (e) {
-          resolve(null);
-        }
+        } catch (e) { resolve(null); }
       });
     });
 
@@ -76,14 +84,13 @@ function fetchYahooPrice(yahooSymbol) {
 }
 
 // ============================================================
-// FETCH CMC CRYPTO PRICES
+// CMC CRYPTO PRICES
 // ============================================================
 function fetchCMCPrices(symbols) {
   return new Promise((resolve) => {
-    const symbolStr = symbols.join(',');
     const options = {
       hostname: 'pro-api.coinmarketcap.com',
-      path: `/v1/cryptocurrency/quotes/latest?symbol=${symbolStr}&convert=USD`,
+      path: `/v1/cryptocurrency/quotes/latest?symbol=${symbols.join(',')}&convert=USD`,
       method: 'GET',
       headers: { 'X-CMC_PRO_API_KEY': CMC_API_KEY }
     };
@@ -125,29 +132,20 @@ async function refreshPrices() {
   const stockAssets = [...new Set(flips.filter(f => f.category === 'stock').map(f => f.asset))];
   const commodityAssets = [...new Set(flips.filter(f => f.category === 'commodity').map(f => f.asset))];
 
-  // Crypto via CMC
   if (cryptoAssets.length > 0) {
-    const cryptoPrices = await fetchCMCPrices(cryptoAssets);
-    Object.assign(priceCache, cryptoPrices);
+    const prices = await fetchCMCPrices(cryptoAssets);
+    Object.assign(priceCache, prices);
   }
 
-  // Stocks via Yahoo Finance + logo.dev
   for (const asset of stockAssets) {
     const price = await fetchYahooPrice(asset);
-    priceCache[asset] = {
-      price,
-      logo: `https://img.logo.dev/ticker/${asset.toLowerCase()}?token=pk_JDFSa_5jQwKbFu0HZDG6og`
-    };
+    priceCache[asset] = { price, logo: getStockLogo(asset) };
   }
 
-  // Commodities via Yahoo Finance
   for (const asset of commodityAssets) {
     const yahooSym = commodityYahooMap[asset] || asset;
     const price = await fetchYahooPrice(yahooSym);
-    priceCache[asset] = {
-      price,
-      logo: commodityLogos[asset] || null
-    };
+    priceCache[asset] = { price, logo: commodityLogos[asset] || null };
   }
 
   lastPriceFetch = now;
@@ -182,7 +180,7 @@ app.post('/api/webhook', async (req, res) => {
 });
 
 // ============================================================
-// GET FLIPS WITH PRICES
+// GET FLIPS
 // ============================================================
 app.get('/api/cloud-flips', async (req, res) => {
   await refreshPrices();
@@ -204,14 +202,11 @@ app.get('/', (req, res) => {
 // DETECT CATEGORY
 // ============================================================
 function detectCategory(asset) {
-  const crypto = ['BTC','ETH','SOL','XRP','BNB','ADA','DOGE','AVAX','DOT','MATIC','LINK','UNI','ATOM','LTC','BCH','XLM','ALGO','NEAR','TAO','RENDER','RNDR','FET','OCEAN','GRT','HYPE','FLOKI','BONK','TRX','EOS','XTZ','AAVE','CRV','SNX','MKR','COMP','ICP','FIL','HBAR','VET','THETA','AXS','SAND','MANA','CHZ','GALA','CRO'];
   const commodity = ['XAUUSD','XAGUSD','GOLD','SILVER','USOIL','UKOIL','WTI','BRENT','NATGAS','COPPER','PLATINUM','PALLADIUM','WHEAT','CORN','SOYBEAN','COFFEE','SUGAR','COTTON'];
   const stock = ['AAPL','MSFT','GOOGL','GOOG','AMZN','NVDA','TSLA','META','NFLX','AMD','INTC','QCOM','AVGO','ENPH','FSLR','COIN','MSTR','RIOT','MARA','SPY','QQQ','GLD','SLV'];
-
   const u = asset.toUpperCase();
   if (commodity.includes(u)) return 'commodity';
   if (stock.includes(u)) return 'stock';
-  if (crypto.includes(u)) return 'crypto';
   return 'crypto';
 }
 
