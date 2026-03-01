@@ -133,38 +133,40 @@ function whopGet(path, token) {
 // ============================================================
 // LOGO MAPS
 // ============================================================
+// Use Clearbit Logo API - more reliable than Wikipedia
 const stockLogoMap = {
-  'AAPL':'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Apple_logo_black.svg/64px-Apple_logo_black.svg.png',
-  'MSFT':'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Microsoft_logo.svg/64px-Microsoft_logo.svg.png',
-  'GOOGL':'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/64px-Google_2015_logo.svg.png',
-  'GOOG':'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/64px-Google_2015_logo.svg.png',
-  'AMZN':'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Amazon_logo.svg/64px-Amazon_logo.svg.png',
-  'NVDA':'https://upload.wikimedia.org/wikipedia/en/thumb/6/6d/Nvidia_image_logo.svg/64px-Nvidia_image_logo.svg.png',
-  'TSLA':'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Tesla_logo.png/64px-Tesla_logo.png',
-  'META':'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Meta_Platforms_Inc._logo.svg/64px-Meta_Platforms_Inc._logo.svg.png',
-  'NFLX':'https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Netflix_2015_logo.svg/64px-Netflix_2015_logo.svg.png',
-  'AMD':'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/AMD_Logo.svg/64px-AMD_Logo.svg.png',
-  'COIN':'https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Coinbase_logo.svg/64px-Coinbase_logo.svg.png',
-  'MSTR':'https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/MicroStrategy_logo_%282022%29.svg/64px-MicroStrategy_logo_%282022%29.svg.png',
-  'PYPL':'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/PayPal.svg/64px-PayPal.svg.png',
-  'PLTR':'https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Palantir_Technologies_logo.svg/64px-Palantir_Technologies_logo.svg.png',
-  'RIOT':'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Riot_Platforms_logo.svg/64px-Riot_Platforms_logo.svg.png',
-  'V':'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/64px-Visa_Inc._logo.svg.png',
-  'MA':'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/MasterCard_Logo.svg/64px-MasterCard_Logo.svg.png',
+  'AAPL':'https://logo.clearbit.com/apple.com',
+  'MSFT':'https://logo.clearbit.com/microsoft.com',
+  'GOOGL':'https://logo.clearbit.com/google.com',
+  'GOOG':'https://logo.clearbit.com/google.com',
+  'AMZN':'https://logo.clearbit.com/amazon.com',
+  'NVDA':'https://logo.clearbit.com/nvidia.com',
+  'TSLA':'https://logo.clearbit.com/tesla.com',
+  'META':'https://logo.clearbit.com/meta.com',
+  'NFLX':'https://logo.clearbit.com/netflix.com',
+  'AMD':'https://logo.clearbit.com/amd.com',
+  'COIN':'https://logo.clearbit.com/coinbase.com',
+  'MSTR':'https://logo.clearbit.com/microstrategy.com',
+  'PYPL':'https://logo.clearbit.com/paypal.com',
+  'PLTR':'https://logo.clearbit.com/palantir.com',
+  'RIOT':'https://logo.clearbit.com/riotplatforms.com',
+  'V':'https://logo.clearbit.com/visa.com',
+  'MA':'https://logo.clearbit.com/mastercard.com',
 };
 
+// Use simple icon URLs for commodities
 const commodityLogoMap = {
-  'XAUUSD':'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Gold-crystals.jpg/64px-Gold-crystals.jpg',
-  'GOLD':'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Gold-crystals.jpg/64px-Gold-crystals.jpg',
-  'XAGUSD':'https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Silver_crystal.jpg/64px-Silver_crystal.jpg',
-  'SILVER':'https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Silver_crystal.jpg/64px-Silver_crystal.jpg',
-  'USOIL':'https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Oil_platform_P-51_%28Brazil%29.jpg/64px-Oil_platform_P-51_%28Brazil%29.jpg',
-  'WTI':'https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Oil_platform_P-51_%28Brazil%29.jpg/64px-Oil_platform_P-51_%28Brazil%29.jpg',
-  'NATGAS':'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Thalys_Brussels_Midi_DSC_0353.jpg/64px-Thalys_Brussels_Midi_DSC_0353.jpg',
-  'COPPER':'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/NatCopper.jpg/64px-NatCopper.jpg',
-  'WHEAT':'https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Wheat_close-up.JPG/64px-Wheat_close-up.JPG',
-  'CORN':'https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Corncobs.jpg/64px-Corncobs.jpg',
-  'COFFEE':'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Roasted_coffee_beans.jpg/64px-Roasted_coffee_beans.jpg',
+  'XAUUSD':'https://img.icons8.com/fluency/96/000000/gold-bars.png',
+  'GOLD':'https://img.icons8.com/fluency/96/000000/gold-bars.png',
+  'XAGUSD':'https://img.icons8.com/fluency/96/000000/silver.png',
+  'SILVER':'https://img.icons8.com/fluency/96/000000/silver.png',
+  'USOIL':'https://img.icons8.com/fluency/96/000000/oil-industry.png',
+  'WTI':'https://img.icons8.com/fluency/96/000000/oil-industry.png',
+  'NATGAS':'https://img.icons8.com/fluency/96/000000/gas.png',
+  'COPPER':'https://img.icons8.com/fluency/96/000000/copper.png',
+  'WHEAT':'https://img.icons8.com/fluency/96/000000/wheat.png',
+  'CORN':'https://img.icons8.com/fluency/96/000000/corn.png',
+  'COFFEE':'https://img.icons8.com/fluency/96/000000/coffee-beans.png',
 };
 
 const commodityYahooMap = {
