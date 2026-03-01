@@ -7,7 +7,6 @@ app.use(cors());
 app.use(express.json());
 
 const CMC_API_KEY = '44bfdd5317224b0b8ff8cafbcd3d1267';
-const LOGOKIT_API_TOKEN = process.env.LOGOKIT_API_TOKEN || 'pk_fr136f186b6c9a0d5011cb';
 const WHOP_CLIENT_ID = process.env.WHOP_CLIENT_ID;
 const WHOP_CLIENT_SECRET = process.env.WHOP_CLIENT_SECRET;
 const WHOP_REDIRECT_URI = process.env.WHOP_REDIRECT_URI;
@@ -134,40 +133,38 @@ function whopGet(path, token) {
 // ============================================================
 // LOGO MAPS
 // ============================================================
-// Use LogoKit API for stock logos
 const stockLogoMap = {
-  'AAPL':'https://img.logokit.com/ticker/AAPL?token=pk_fr136f186b6c9a0d5011cb',
-  'MSFT':'https://img.logokit.com/ticker/MSFT?token=pk_fr136f186b6c9a0d5011cb',
-  'GOOGL':'https://img.logokit.com/ticker/GOOGL?token=pk_fr136f186b6c9a0d5011cb',
-  'GOOG':'https://img.logokit.com/ticker/GOOG?token=pk_fr136f186b6c9a0d5011cb',
-  'AMZN':'https://img.logokit.com/ticker/AMZN?token=pk_fr136f186b6c9a0d5011cb',
-  'NVDA':'https://img.logokit.com/ticker/NVDA?token=pk_fr136f186b6c9a0d5011cb',
-  'TSLA':'https://img.logokit.com/ticker/TSLA?token=pk_fr136f186b6c9a0d5011cb',
-  'META':'https://img.logokit.com/ticker/META?token=pk_fr136f186b6c9a0d5011cb',
-  'NFLX':'https://img.logokit.com/ticker/NFLX?token=pk_fr136f186b6c9a0d5011cb',
-  'AMD':'https://img.logokit.com/ticker/AMD?token=pk_fr136f186b6c9a0d5011cb',
-  'COIN':'https://img.logokit.com/ticker/COIN?token=pk_fr136f186b6c9a0d5011cb',
-  'MSTR':'https://img.logokit.com/ticker/MSTR?token=pk_fr136f186b6c9a0d5011cb',
-  'PYPL':'https://img.logokit.com/ticker/PYPL?token=pk_fr136f186b6c9a0d5011cb',
-  'PLTR':'https://img.logokit.com/ticker/PLTR?token=pk_fr136f186b6c9a0d5011cb',
-  'RIOT':'https://img.logokit.com/ticker/RIOT?token=pk_fr136f186b6c9a0d5011cb',
-  'V':'https://img.logokit.com/ticker/V?token=pk_fr136f186b6c9a0d5011cb',
-  'MA':'https://img.logokit.com/ticker/MA?token=pk_fr136f186b6c9a0d5011cb',
+  'AAPL':'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Apple_logo_black.svg/64px-Apple_logo_black.svg.png',
+  'MSFT':'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Microsoft_logo.svg/64px-Microsoft_logo.svg.png',
+  'GOOGL':'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/64px-Google_2015_logo.svg.png',
+  'GOOG':'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/64px-Google_2015_logo.svg.png',
+  'AMZN':'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Amazon_logo.svg/64px-Amazon_logo.svg.png',
+  'NVDA':'https://upload.wikimedia.org/wikipedia/en/thumb/6/6d/Nvidia_image_logo.svg/64px-Nvidia_image_logo.svg.png',
+  'TSLA':'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Tesla_logo.png/64px-Tesla_logo.png',
+  'META':'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Meta_Platforms_Inc._logo.svg/64px-Meta_Platforms_Inc._logo.svg.png',
+  'NFLX':'https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Netflix_2015_logo.svg/64px-Netflix_2015_logo.svg.png',
+  'AMD':'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/AMD_Logo.svg/64px-AMD_Logo.svg.png',
+  'COIN':'https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Coinbase_logo.svg/64px-Coinbase_logo.svg.png',
+  'MSTR':'https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/MicroStrategy_logo_%282022%29.svg/64px-MicroStrategy_logo_%282022%29.svg.png',
+  'PYPL':'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/PayPal.svg/64px-PayPal.svg.png',
+  'PLTR':'https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Palantir_Technologies_logo.svg/64px-Palantir_Technologies_logo.svg.png',
+  'RIOT':'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Riot_Platforms_logo.svg/64px-Riot_Platforms_logo.svg.png',
+  'V':'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/64px-Visa_Inc._logo.svg.png',
+  'MA':'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/MasterCard_Logo.svg/64px-MasterCard_Logo.svg.png',
 };
 
-// Commodity icons - inline SVG data URIs
 const commodityLogoMap = {
-  'XAUUSD':'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="64" height="64"%3E%3Ccircle cx="32" cy="32" r="30" fill="%23F5B942"/%3E%3Ctext x="32" y="44" font-size="32" text-anchor="middle" fill="%23000" font-family="Arial" font-weight="bold"%3EAu%3C/text%3E%3C/svg%3E',
-  'GOLD':'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="64" height="64"%3E%3Ccircle cx="32" cy="32" r="30" fill="%23F5B942"/%3E%3Ctext x="32" y="44" font-size="32" text-anchor="middle" fill="%23000" font-family="Arial" font-weight="bold"%3EAu%3C/text%3E%3C/svg%3E',
-  'XAGUSD':'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="64" height="64"%3E%3Ccircle cx="32" cy="32" r="30" fill="%23C0C0C0"/%3E%3Ctext x="32" y="44" font-size="32" text-anchor="middle" fill="%23000" font-family="Arial" font-weight="bold"%3EAg%3C/text%3E%3C/svg%3E',
-  'SILVER':'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="64" height="64"%3E%3Ccircle cx="32" cy="32" r="30" fill="%23C0C0C0"/%3E%3Ctext x="32" y="44" font-size="32" text-anchor="middle" fill="%23000" font-family="Arial" font-weight="bold"%3EAg%3C/text%3E%3C/svg%3E',
-  'USOIL':'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="64" height="64"%3E%3Ccircle cx="32" cy="32" r="30" fill="%231a1a1a"/%3E%3Ctext x="32" y="46" font-size="24" text-anchor="middle" fill="%23fff" font-family="Arial" font-weight="bold"%3EOIL%3C/text%3E%3C/svg%3E',
-  'WTI':'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="64" height="64"%3E%3Ccircle cx="32" cy="32" r="30" fill="%231a1a1a"/%3E%3Ctext x="32" y="46" font-size="24" text-anchor="middle" fill="%23fff" font-family="Arial" font-weight="bold"%3EOIL%3C/text%3E%3C/svg%3E',
-  'NATGAS':'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="64" height="64"%3E%3Ccircle cx="32" cy="32" r="30" fill="%23FF6B35"/%3E%3Ctext x="32" y="46" font-size="24" text-anchor="middle" fill="%23fff" font-family="Arial" font-weight="bold"%3EGAS%3C/text%3E%3C/svg%3E',
-  'COPPER':'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="64" height="64"%3E%3Ccircle cx="32" cy="32" r="30" fill="%23B87333"/%3E%3Ctext x="32" y="44" font-size="32" text-anchor="middle" fill="%23fff" font-family="Arial" font-weight="bold"%3ECu%3C/text%3E%3C/svg%3E',
-  'WHEAT':'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="64" height="64"%3E%3Ccircle cx="32" cy="32" r="30" fill="%23DEB887"/%3E%3Ctext x="32" y="46" font-size="20" text-anchor="middle" fill="%23000" font-family="Arial" font-weight="bold"%3EWHT%3C/text%3E%3C/svg%3E',
-  'CORN':'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="64" height="64"%3E%3Ccircle cx="32" cy="32" r="30" fill="%23FFD700"/%3E%3Ctext x="32" y="46" font-size="22" text-anchor="middle" fill="%23000" font-family="Arial" font-weight="bold"%3ECRN%3C/text%3E%3C/svg%3E',
-  'COFFEE':'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="64" height="64"%3E%3Ccircle cx="32" cy="32" r="30" fill="%236F4E37"/%3E%3Ctext x="32" y="46" font-size="20" text-anchor="middle" fill="%23fff" font-family="Arial" font-weight="bold"%3ECOF%3C/text%3E%3C/svg%3E',
+  'XAUUSD':'data:image/svg+xml;base64,PCEtLSBieSBUcmFkaW5nVmlldyAtLT48c3ZnIHdpZHRoPSI1NiIgaGVpZ2h0PSI1NiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMCAwaDU2djU2SDBWMHoiIGZpbGw9IiNENjlBMDAiLz48cGF0aCBkPSJNMjEuMjQ4IDIxLjU1NWgxMy43ODRsLTIuMDEtNS4zOTNhMS4xNyAxLjE3IDAgMDAtLjQxLS41NTNsLTExLjM2NCA1Ljk0NnptLS4wMzgtNi40MDFDMjEuNjk4IDEzLjg0MiAyMi43NzIgMTMgMjMuOTU2IDEzaDguMTUxYzEuMTg0IDAgMi4yNTguODQyIDIuNzQ3IDIuMTU0bDIuMDA5IDUuMzkzYy42MDMgMS42MTgtLjM3MSAzLjQ1My0xLjgzMSAzLjQ1M2gtMTRjLTEuNDYgMC0yLjQzMy0xLjgzNS0xLjgzMS0zLjQ1M2wyLjAxLTUuMzkzaC0uMDAxek0xMC4yMzUgMzUuNTU1aDEzLjc1N2wtMi4wMS01LjM5M2ExLjE3MSAxLjE3MSAwIDAwLS40MS0uNTUzbC0xMS4zMzcgNS45NDZ6bS0uMDM5LTYuNDAxQzEwLjY4NSAyNy44NDIgMTEuNzYgMjcgMTIuOTQzIDI3aDguMTI0YzEuMTg0IDAgMi4yNTkuODQyIDIuNzQ3IDIuMTU0bDIuMDA5IDUuMzkzYy42MDMgMS42MTgtLjM3IDMuNDUzLTEuODMxIDMuNDUzSDEwLjAxN2MtMS40NiAwLTIuNDMzLTEuODM1LTEuODMtMy40NTNsMi4wMS01LjM5M3ptMzUuODkgNi40MDFoLTEzLjg1bDExLjQzLTUuOTQ1Yy4xNzkuMTI2LjMyMy4zMTYuNDEzLjU1M2wyLjAwOCA1LjM5MnpNMzQuOTQ1IDI3Yy0xLjE4NCAwLTIuMjU5Ljg0Mi0yLjc0NyAyLjE1NGwtMi4wMDkgNS4zOTNjLS42MDMgMS42MTguMzcgMy40NTMgMS44MzEgMy40NTNoMTQuMDY3YzEuNDYgMCAyLjQzMy0xLjgzNSAxLjgzLTMuNDUzbC0yLjAxLTUuMzkzQzQ1LjQyMiAyNy44NDIgNDQuMzQ4IDI3IDQzLjE2NCAyN2gtOC4yMnoiIGZpbGw9IiNmZmYiLz48L3N2Zz4=',
+  'GOLD':'data:image/svg+xml;base64,PCEtLSBieSBUcmFkaW5nVmlldyAtLT48c3ZnIHdpZHRoPSI1NiIgaGVpZ2h0PSI1NiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMCAwaDU2djU2SDBWMHoiIGZpbGw9IiNENjlBMDAiLz48cGF0aCBkPSJNMjEuMjQ4IDIxLjU1NWgxMy43ODRsLTIuMDEtNS4zOTNhMS4xNyAxLjE3IDAgMDAtLjQxLS41NTNsLTExLjM2NCA1Ljk0NnptLS4wMzgtNi40MDFDMjEuNjk4IDEzLjg0MiAyMi43NzIgMTMgMjMuOTU2IDEzaDguMTUxYzEuMTg0IDAgMi4yNTguODQyIDIuNzQ3IDIuMTU0bDIuMDA5IDUuMzkzYy42MDMgMS42MTgtLjM3MSAzLjQ1My0xLjgzMSAzLjQ1M2gtMTRjLTEuNDYgMC0yLjQzMy0xLjgzNS0xLjgzMS0zLjQ1M2wyLjAxLTUuMzkzaC0uMDAxek0xMC4yMzUgMzUuNTU1aDEzLjc1N2wtMi4wMS01LjM5M2ExLjE3MSAxLjE3MSAwIDAwLS40MS0uNTUzbC0xMS4zMzcgNS45NDZ6bS0uMDM5LTYuNDAxQzEwLjY4NSAyNy44NDIgMTEuNzYgMjcgMTIuOTQzIDI3aDguMTI0YzEuMTg0IDAgMi4yNTkuODQyIDIuNzQ3IDIuMTU0bDIuMDA5IDUuMzkzYy42MDMgMS42MTgtLjM3IDMuNDUzLTEuODMxIDMuNDUzSDEwLjAxN2MtMS40NiAwLTIuNDMzLTEuODM1LTEuODMtMy40NTNsMi4wMS01LjM5M3ptMzUuODkgNi40MDFoLTEzLjg1bDExLjQzLTUuOTQ1Yy4xNzkuMTI2LjMyMy4zMTYuNDEzLjU1M2wyLjAwOCA1LjM5MnpNMzQuOTQ1IDI3Yy0xLjE4NCAwLTIuMjU5Ljg0Mi0yLjc0NyAyLjE1NGwtMi4wMDkgNS4zOTNjLS42MDMgMS42MTguMzcgMy40NTMgMS44MzEgMy40NTNoMTQuMDY3YzEuNDYgMCAyLjQzMy0xLjgzNSAxLjgzLTMuNDUzbC0yLjAxLTUuMzkzQzQ1LjQyMiAyNy44NDIgNDQuMzQ4IDI3IDQzLjE2NCAyN2gtOC4yMnoiIGZpbGw9IiNmZmYiLz48L3N2Zz4=',
+  'XAGUSD':'data:image/svg+xml;base64,PCEtLSBieSBUcmFkaW5nVmlldyAtLT48c3ZnIHdpZHRoPSI1NiIgaGVpZ2h0PSI1NiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMCAwaDU2djU2SDBWMHoiIGZpbGw9IiNBREFCQjgiLz48cGF0aCBkPSJNMjEuMjQ3IDIxLjU1NWgxMy43ODVsLTIuMDEtNS4zOTNhMS4xNzEgMS4xNzEgMCAwMC0uNDEtLjU1M2wtMTEuMzY1IDUuOTQ2em0tLjAzOC02LjQwMUMyMS42OTggMTMuODQyIDIyLjc3MiAxMyAyMy45NTYgMTNoOC4xNWMxLjE4NSAwIDIuMjYuODQyIDIuNzQ4IDIuMTU0bDIuMDA5IDUuMzkzYy42MDIgMS42MTgtLjM3MSAzLjQ1My0xLjgzMSAzLjQ1M2gtMTRjLTEuNDYgMC0yLjQzNC0xLjgzNS0xLjgzMi0zLjQ1M2wyLjAxLTUuMzkzek0xMC4yMzQgMzUuNTU1aDEzLjc1N2wtMi4wMDgtNS4zOTNhMS4xNyAxLjE3IDAgMDAtLjQxMi0uNTUzbC0xMS4zMzcgNS45NDZ6bS0uMDM4LTYuNDAxQzEwLjY4NSAyNy44NDIgMTEuNzYgMjcgMTIuOTQzIDI3aDguMTI0YzEuMTg0IDAgMi4yNTguODQyIDIuNzQ3IDIuMTU0bDIuMDA5IDUuMzkzQzI2LjQyNiAzNi4xNjUgMjUuNDUyIDM4IDIzLjk5IDM4SDEwLjAxN2MtMS40NiAwLTIuNDMzLTEuODM1LTEuODMtMy40NTNsMi4wMS01LjM5M3ptMzUuODkgNi40MDFoLTEzLjg1bDExLjQzLTUuOTQ1Yy4xNzguMTI2LjMyMy4zMTYuNDEyLjU1M2wyLjAwOCA1LjM5MnpNMzQuOTQzIDI3Yy0xLjE4NCAwLTIuMjU4Ljg0Mi0yLjc0NiAyLjE1NGwtMi4wMSA1LjM5M0MyOS41ODYgMzYuMTY1IDMwLjU1OSAzOCAzMi4wMiAzOGgxNC4wNjZjMS40NiAwIDIuNDM0LTEuODM1IDEuODMxLTMuNDUzbC0yLjAxLTUuMzkzQzQ1LjQyMiAyNy44NDIgNDQuMzQ2IDI3IDQzLjE2MyAyN2gtOC4yMnoiIGZpbGw9IiNmZmYiLz48L3N2Zz4=',
+  'SILVER':'data:image/svg+xml;base64,PCEtLSBieSBUcmFkaW5nVmlldyAtLT48c3ZnIHdpZHRoPSI1NiIgaGVpZ2h0PSI1NiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMCAwaDU2djU2SDBWMHoiIGZpbGw9IiNBREFCQjgiLz48cGF0aCBkPSJNMjEuMjQ3IDIxLjU1NWgxMy43ODVsLTIuMDEtNS4zOTNhMS4xNzEgMS4xNzEgMCAwMC0uNDEtLjU1M2wtMTEuMzY1IDUuOTQ2em0tLjAzOC02LjQwMUMyMS42OTggMTMuODQyIDIyLjc3MiAxMyAyMy45NTYgMTNoOC4xNWMxLjE4NSAwIDIuMjYuODQyIDIuNzQ4IDIuMTU0bDIuMDA5IDUuMzkzYy42MDIgMS42MTgtLjM3MSAzLjQ1My0xLjgzMSAzLjQ1M2gtMTRjLTEuNDYgMC0yLjQzNC0xLjgzNS0xLjgzMi0zLjQ1M2wyLjAxLTUuMzkzek0xMC4yMzQgMzUuNTU1aDEzLjc1N2wtMi4wMDgtNS4zOTNhMS4xNyAxLjE3IDAgMDAtLjQxMi0uNTUzbC0xMS4zMzcgNS45NDZ6bS0uMDM4LTYuNDAxQzEwLjY4NSAyNy44NDIgMTEuNzYgMjcgMTIuOTQzIDI3aDguMTI0YzEuMTg0IDAgMi4yNTguODQyIDIuNzQ3IDIuMTU0bDIuMDA5IDUuMzkzQzI2LjQyNiAzNi4xNjUgMjUuNDUyIDM4IDIzLjk5IDM4SDEwLjAxN2MtMS40NiAwLTIuNDMzLTEuODM1LTEuODMtMy40NTNsMi4wMS01LjM5M3ptMzUuODkgNi40MDFoLTEzLjg1bDExLjQzLTUuOTQ1Yy4xNzguMTI2LjMyMy4zMTYuNDEyLjU1M2wyLjAwOCA1LjM5MnpNMzQuOTQzIDI3Yy0xLjE4NCAwLTIuMjU4Ljg0Mi0yLjc0NiAyLjE1NGwtMi4wMSA1LjM5M0MyOS41ODYgMzYuMTY1IDMwLjU1OSAzOCAzMi4wMiAzOGgxNC4wNjZjMS40NiAwIDIuNDM0LTEuODM1IDEuODMxLTMuNDUzbC0yLjAxLTUuMzkzQzQ1LjQyMiAyNy44NDIgNDQuMzQ2IDI3IDQzLjE2MyAyN2gtOC4yMnoiIGZpbGw9IiNmZmYiLz48L3N2Zz4=',
+  'USOIL':'https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Oil_platform_P-51_%28Brazil%29.jpg/64px-Oil_platform_P-51_%28Brazil%29.jpg',
+  'WTI':'https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Oil_platform_P-51_%28Brazil%29.jpg/64px-Oil_platform_P-51_%28Brazil%29.jpg',
+  'NATGAS':'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Thalys_Brussels_Midi_DSC_0353.jpg/64px-Thalys_Brussels_Midi_DSC_0353.jpg',
+  'COPPER':'data:image/svg+xml;base64,PCEtLSBieSBUcmFkaW5nVmlldyAtLT48c3ZnIHdpZHRoPSI1NiIgaGVpZ2h0PSI1NiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNNTYgNTZIMFYwaDU2djU2eiIgZmlsbD0iI0MyNkE0NCIvPjxwYXRoIGQ9Ik00My4wMDIgMzlhMSAxIDAgMDEtMSAxaC0xMGExIDEgMCAwMS0xLTF2LTlhMSAxIDAgMDExLTFoMTBhMSAxIDAgMDExIDF2OXpNMjUgMzlhMSAxIDAgMDEtMSAxaC05Ljk5OWExIDEgMCAwMS0xLTF2LTlhMSAxIDAgMDExLTFIMjRhMSAxIDAgMDExIDF2OXptOS0xNmExIDEgMCAwMS0xIDFoLTkuOTk5YTEgMSAwIDAxLTEtMXYtOWExIDEgMCAwMTEtMUgzM2ExIDEgMCAwMTEgMXY5eiIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjIiLz48cGF0aCBkPSJNMjMgMTRoMTBsLTEwIDl2LTl6bS05IDE2aDEwbC0xMCA5di05em0xOCAwaDEwbC0xMCA5di05eiIgZmlsbD0iI2ZmZiIvPjwvc3ZnPg==',
+  'WHEAT':'https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Wheat_close-up.JPG/64px-Wheat_close-up.JPG',
+  'CORN':'https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Corncobs.jpg/64px-Corncobs.jpg',
+  'COFFEE':'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Roasted_coffee_beans.jpg/64px-Roasted_coffee_beans.jpg',
 };
 
 const commodityYahooMap = {
@@ -242,7 +239,7 @@ async function refreshPrices() {
   const stocks = [...new Set(flips.filter(f => f.category === 'stock').map(f => f.asset))];
   const comms  = [...new Set(flips.filter(f => f.category === 'commodity').map(f => f.asset))];
   if (crypto.length) Object.assign(priceCache, await fetchCMCPrices(crypto));
-  for (const a of stocks) priceCache[a] = { price: await fetchYahooPrice(a), logo: `https://img.logokit.com/ticker/${a}?token=${LOGOKIT_API_TOKEN}` };
+  for (const a of stocks) priceCache[a] = { price: await fetchYahooPrice(a), logo: stockLogoMap[a] || null };
   for (const a of comms)  priceCache[a] = { price: await fetchYahooPrice(commodityYahooMap[a] || a), logo: commodityLogoMap[a] || null };
   lastPriceFetch = now;
 }
