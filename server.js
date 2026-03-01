@@ -133,40 +133,40 @@ function whopGet(path, token) {
 // ============================================================
 // LOGO MAPS
 // ============================================================
-// Use Clearbit Logo API - more reliable than Wikipedia
+// Use LogoKit API for stock logos
 const stockLogoMap = {
-  'AAPL':'https://logo.clearbit.com/apple.com',
-  'MSFT':'https://logo.clearbit.com/microsoft.com',
-  'GOOGL':'https://logo.clearbit.com/google.com',
-  'GOOG':'https://logo.clearbit.com/google.com',
-  'AMZN':'https://logo.clearbit.com/amazon.com',
-  'NVDA':'https://logo.clearbit.com/nvidia.com',
-  'TSLA':'https://logo.clearbit.com/tesla.com',
-  'META':'https://logo.clearbit.com/meta.com',
-  'NFLX':'https://logo.clearbit.com/netflix.com',
-  'AMD':'https://logo.clearbit.com/amd.com',
-  'COIN':'https://logo.clearbit.com/coinbase.com',
-  'MSTR':'https://logo.clearbit.com/microstrategy.com',
-  'PYPL':'https://logo.clearbit.com/paypal.com',
-  'PLTR':'https://logo.clearbit.com/palantir.com',
-  'RIOT':'https://logo.clearbit.com/riotplatforms.com',
-  'V':'https://logo.clearbit.com/visa.com',
-  'MA':'https://logo.clearbit.com/mastercard.com',
+  'AAPL':'https://img.logokit.com/ticker/AAPL?token=pk_fr136f186b6c9a0d5011cb',
+  'MSFT':'https://img.logokit.com/ticker/MSFT?token=pk_fr136f186b6c9a0d5011cb',
+  'GOOGL':'https://img.logokit.com/ticker/GOOGL?token=pk_fr136f186b6c9a0d5011cb',
+  'GOOG':'https://img.logokit.com/ticker/GOOG?token=pk_fr136f186b6c9a0d5011cb',
+  'AMZN':'https://img.logokit.com/ticker/AMZN?token=pk_fr136f186b6c9a0d5011cb',
+  'NVDA':'https://img.logokit.com/ticker/NVDA?token=pk_fr136f186b6c9a0d5011cb',
+  'TSLA':'https://img.logokit.com/ticker/TSLA?token=pk_fr136f186b6c9a0d5011cb',
+  'META':'https://img.logokit.com/ticker/META?token=pk_fr136f186b6c9a0d5011cb',
+  'NFLX':'https://img.logokit.com/ticker/NFLX?token=pk_fr136f186b6c9a0d5011cb',
+  'AMD':'https://img.logokit.com/ticker/AMD?token=pk_fr136f186b6c9a0d5011cb',
+  'COIN':'https://img.logokit.com/ticker/COIN?token=pk_fr136f186b6c9a0d5011cb',
+  'MSTR':'https://img.logokit.com/ticker/MSTR?token=pk_fr136f186b6c9a0d5011cb',
+  'PYPL':'https://img.logokit.com/ticker/PYPL?token=pk_fr136f186b6c9a0d5011cb',
+  'PLTR':'https://img.logokit.com/ticker/PLTR?token=pk_fr136f186b6c9a0d5011cb',
+  'RIOT':'https://img.logokit.com/ticker/RIOT?token=pk_fr136f186b6c9a0d5011cb',
+  'V':'https://img.logokit.com/ticker/V?token=pk_fr136f186b6c9a0d5011cb',
+  'MA':'https://img.logokit.com/ticker/MA?token=pk_fr136f186b6c9a0d5011cb',
 };
 
-// Use simple icon URLs for commodities
+// Commodity icons - using emojis as data URIs for reliability
 const commodityLogoMap = {
-  'XAUUSD':'https://img.icons8.com/fluency/96/000000/gold-bars.png',
-  'GOLD':'https://img.icons8.com/fluency/96/000000/gold-bars.png',
-  'XAGUSD':'https://img.icons8.com/fluency/96/000000/silver.png',
-  'SILVER':'https://img.icons8.com/fluency/96/000000/silver.png',
-  'USOIL':'https://img.icons8.com/fluency/96/000000/oil-industry.png',
-  'WTI':'https://img.icons8.com/fluency/96/000000/oil-industry.png',
-  'NATGAS':'https://img.icons8.com/fluency/96/000000/gas.png',
-  'COPPER':'https://img.icons8.com/fluency/96/000000/copper.png',
-  'WHEAT':'https://img.icons8.com/fluency/96/000000/wheat.png',
-  'CORN':'https://img.icons8.com/fluency/96/000000/corn.png',
-  'COFFEE':'https://img.icons8.com/fluency/96/000000/coffee-beans.png',
+  'XAUUSD':'https://api.dicebear.com/7.x/icons/svg?icon=currency&backgroundColor=F5B942&size=64',
+  'GOLD':'https://api.dicebear.com/7.x/icons/svg?icon=currency&backgroundColor=F5B942&size=64',
+  'XAGUSD':'https://api.dicebear.com/7.x/icons/svg?icon=currency&backgroundColor=C0C0C0&size=64',
+  'SILVER':'https://api.dicebear.com/7.x/icons/svg?icon=currency&backgroundColor=C0C0C0&size=64',
+  'USOIL':'https://api.dicebear.com/7.x/icons/svg?icon=droplet&backgroundColor=1a1a1a&size=64',
+  'WTI':'https://api.dicebear.com/7.x/icons/svg?icon=droplet&backgroundColor=1a1a1a&size=64',
+  'NATGAS':'https://api.dicebear.com/7.x/icons/svg?icon=flame&backgroundColor=FF6B35&size=64',
+  'COPPER':'https://api.dicebear.com/7.x/icons/svg?icon=hexagon&backgroundColor=B87333&size=64',
+  'WHEAT':'https://api.dicebear.com/7.x/icons/svg?icon=leaf&backgroundColor=DEB887&size=64',
+  'CORN':'https://api.dicebear.com/7.x/icons/svg?icon=leaf&backgroundColor=FFD700&size=64',
+  'COFFEE':'https://api.dicebear.com/7.x/icons/svg?icon=cup&backgroundColor=6F4E37&size=64',
 };
 
 const commodityYahooMap = {
@@ -241,7 +241,7 @@ async function refreshPrices() {
   const stocks = [...new Set(flips.filter(f => f.category === 'stock').map(f => f.asset))];
   const comms  = [...new Set(flips.filter(f => f.category === 'commodity').map(f => f.asset))];
   if (crypto.length) Object.assign(priceCache, await fetchCMCPrices(crypto));
-  for (const a of stocks) priceCache[a] = { price: await fetchYahooPrice(a), logo: stockLogoMap[a] || null };
+  for (const a of stocks) priceCache[a] = { price: await fetchYahooPrice(a), logo: `https://img.logokit.com/ticker/${a}?token=pk_fr136f186b6c9a0d5011cb` };
   for (const a of comms)  priceCache[a] = { price: await fetchYahooPrice(commodityYahooMap[a] || a), logo: commodityLogoMap[a] || null };
   lastPriceFetch = now;
 }
