@@ -7,6 +7,7 @@ app.use(cors());
 app.use(express.json());
 
 const CMC_API_KEY = '44bfdd5317224b0b8ff8cafbcd3d1267';
+const LOGOKIT_API_TOKEN = process.env.LOGOKIT_API_TOKEN || 'pk_fr136f186b6c9a0d5011cb';
 const WHOP_CLIENT_ID = process.env.WHOP_CLIENT_ID;
 const WHOP_CLIENT_SECRET = process.env.WHOP_CLIENT_SECRET;
 const WHOP_REDIRECT_URI = process.env.WHOP_REDIRECT_URI;
@@ -154,19 +155,19 @@ const stockLogoMap = {
   'MA':'https://img.logokit.com/ticker/MA?token=pk_fr136f186b6c9a0d5011cb',
 };
 
-// Commodity icons - using emojis as data URIs for reliability
+// Commodity icons - inline SVG data URIs
 const commodityLogoMap = {
-  'XAUUSD':'https://api.dicebear.com/7.x/icons/svg?icon=currency&backgroundColor=F5B942&size=64',
-  'GOLD':'https://api.dicebear.com/7.x/icons/svg?icon=currency&backgroundColor=F5B942&size=64',
-  'XAGUSD':'https://api.dicebear.com/7.x/icons/svg?icon=currency&backgroundColor=C0C0C0&size=64',
-  'SILVER':'https://api.dicebear.com/7.x/icons/svg?icon=currency&backgroundColor=C0C0C0&size=64',
-  'USOIL':'https://api.dicebear.com/7.x/icons/svg?icon=droplet&backgroundColor=1a1a1a&size=64',
-  'WTI':'https://api.dicebear.com/7.x/icons/svg?icon=droplet&backgroundColor=1a1a1a&size=64',
-  'NATGAS':'https://api.dicebear.com/7.x/icons/svg?icon=flame&backgroundColor=FF6B35&size=64',
-  'COPPER':'https://api.dicebear.com/7.x/icons/svg?icon=hexagon&backgroundColor=B87333&size=64',
-  'WHEAT':'https://api.dicebear.com/7.x/icons/svg?icon=leaf&backgroundColor=DEB887&size=64',
-  'CORN':'https://api.dicebear.com/7.x/icons/svg?icon=leaf&backgroundColor=FFD700&size=64',
-  'COFFEE':'https://api.dicebear.com/7.x/icons/svg?icon=cup&backgroundColor=6F4E37&size=64',
+  'XAUUSD':'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="64" height="64"%3E%3Ccircle cx="32" cy="32" r="30" fill="%23F5B942"/%3E%3Ctext x="32" y="44" font-size="32" text-anchor="middle" fill="%23000" font-family="Arial" font-weight="bold"%3EAu%3C/text%3E%3C/svg%3E',
+  'GOLD':'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="64" height="64"%3E%3Ccircle cx="32" cy="32" r="30" fill="%23F5B942"/%3E%3Ctext x="32" y="44" font-size="32" text-anchor="middle" fill="%23000" font-family="Arial" font-weight="bold"%3EAu%3C/text%3E%3C/svg%3E',
+  'XAGUSD':'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="64" height="64"%3E%3Ccircle cx="32" cy="32" r="30" fill="%23C0C0C0"/%3E%3Ctext x="32" y="44" font-size="32" text-anchor="middle" fill="%23000" font-family="Arial" font-weight="bold"%3EAg%3C/text%3E%3C/svg%3E',
+  'SILVER':'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="64" height="64"%3E%3Ccircle cx="32" cy="32" r="30" fill="%23C0C0C0"/%3E%3Ctext x="32" y="44" font-size="32" text-anchor="middle" fill="%23000" font-family="Arial" font-weight="bold"%3EAg%3C/text%3E%3C/svg%3E',
+  'USOIL':'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="64" height="64"%3E%3Ccircle cx="32" cy="32" r="30" fill="%231a1a1a"/%3E%3Ctext x="32" y="46" font-size="24" text-anchor="middle" fill="%23fff" font-family="Arial" font-weight="bold"%3EOIL%3C/text%3E%3C/svg%3E',
+  'WTI':'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="64" height="64"%3E%3Ccircle cx="32" cy="32" r="30" fill="%231a1a1a"/%3E%3Ctext x="32" y="46" font-size="24" text-anchor="middle" fill="%23fff" font-family="Arial" font-weight="bold"%3EOIL%3C/text%3E%3C/svg%3E',
+  'NATGAS':'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="64" height="64"%3E%3Ccircle cx="32" cy="32" r="30" fill="%23FF6B35"/%3E%3Ctext x="32" y="46" font-size="24" text-anchor="middle" fill="%23fff" font-family="Arial" font-weight="bold"%3EGAS%3C/text%3E%3C/svg%3E',
+  'COPPER':'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="64" height="64"%3E%3Ccircle cx="32" cy="32" r="30" fill="%23B87333"/%3E%3Ctext x="32" y="44" font-size="32" text-anchor="middle" fill="%23fff" font-family="Arial" font-weight="bold"%3ECu%3C/text%3E%3C/svg%3E',
+  'WHEAT':'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="64" height="64"%3E%3Ccircle cx="32" cy="32" r="30" fill="%23DEB887"/%3E%3Ctext x="32" y="46" font-size="20" text-anchor="middle" fill="%23000" font-family="Arial" font-weight="bold"%3EWHT%3C/text%3E%3C/svg%3E',
+  'CORN':'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="64" height="64"%3E%3Ccircle cx="32" cy="32" r="30" fill="%23FFD700"/%3E%3Ctext x="32" y="46" font-size="22" text-anchor="middle" fill="%23000" font-family="Arial" font-weight="bold"%3ECRN%3C/text%3E%3C/svg%3E',
+  'COFFEE':'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="64" height="64"%3E%3Ccircle cx="32" cy="32" r="30" fill="%236F4E37"/%3E%3Ctext x="32" y="46" font-size="20" text-anchor="middle" fill="%23fff" font-family="Arial" font-weight="bold"%3ECOF%3C/text%3E%3C/svg%3E',
 };
 
 const commodityYahooMap = {
@@ -241,7 +242,7 @@ async function refreshPrices() {
   const stocks = [...new Set(flips.filter(f => f.category === 'stock').map(f => f.asset))];
   const comms  = [...new Set(flips.filter(f => f.category === 'commodity').map(f => f.asset))];
   if (crypto.length) Object.assign(priceCache, await fetchCMCPrices(crypto));
-  for (const a of stocks) priceCache[a] = { price: await fetchYahooPrice(a), logo: `https://img.logokit.com/ticker/${a}?token=pk_fr136f186b6c9a0d5011cb` };
+  for (const a of stocks) priceCache[a] = { price: await fetchYahooPrice(a), logo: `https://img.logokit.com/ticker/${a}?token=${LOGOKIT_API_TOKEN}` };
   for (const a of comms)  priceCache[a] = { price: await fetchYahooPrice(commodityYahooMap[a] || a), logo: commodityLogoMap[a] || null };
   lastPriceFetch = now;
 }
